@@ -72,7 +72,7 @@ def main():
         print(sentence)
         proc = Popen(('flookup', 'slovene.bin'), stdin=PIPE, stdout=PIPE)
         for word in sentence.words:
-            proc.stdin.write('%s\n' % word.lower())
+            proc.stdin.write(('%s\n' % word.lower()).encode('utf-8'))
         proc.stdin.close()
         parses = defaultdict(set)
         for line in proc.stdout:
@@ -80,7 +80,7 @@ def main():
             try:
                 form, analysis = line.decode('utf-8').strip().split('\t')
             except ValueError:
-                print 'Bad line from stdout:', line
+                print('Bad line from stdout:', line)
                 exit(-1)
             parses[form].add(analysis)
         for form, analyses in parses.items():
