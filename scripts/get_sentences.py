@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+import string
 from collections import defaultdict
 from subprocess import Popen, PIPE
 
@@ -37,13 +38,17 @@ def split_into_sentences(text):
     sentences = sentences[:-1]
     sentences = [s.strip() for s in sentences]
     return sentences
-# end grabbed from stack overflow
+# end grabbed from stack overflow 
 
+translation_table = str.maketrans('', '', string.punctuation)
+
+def remove_punctuation(word):
+	return word.translate(translation_table)
 
 class Sentence:
     def __init__(self, text):
         self.text = text
-        self.words = text.split(" ")
+        self.words = [remove_punctuation(word) for word in text.split(" ")]
 
     def __repr__(self):
         return self.text
@@ -68,7 +73,7 @@ def main():
     sentences = [s for s in sentences if 8 < len(s.words) < 15]
     random.shuffle(sentences)
     print(len(sentences))
-    for sentence in sentences[:20]:
+    for sentence in sentences[:1]:
         print(sentence)
         proc = Popen(('flookup', 'slovene.bin'), stdin=PIPE, stdout=PIPE)
         for word in sentence.words:
