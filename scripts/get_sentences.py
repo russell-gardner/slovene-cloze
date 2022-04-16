@@ -6,13 +6,38 @@ from subprocess import Popen, PIPE
 
 # grabbed from stack overflow
 import re
-alphabets= "([A-Za-z])"
+alphabets = "([A-Za-z])"
 prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
 suffixes = "(Inc|Ltd|Jr|Sr|Co)"
 starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
 acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
 websites = "[.](com|net|org|io|gov)"
 
+class Verb:
+    def __init__(self, text, base_form, tense, person, number, gender):
+        self.text = text
+        self.base_form = base_form
+        self.tense = tense
+        self.person = person
+        self.number = number
+        self.gender = gender
+	
+    def __repr__(self):
+        return f"Verb(text = {self.text}, base_form = {self.base_form}, tense = {self.tense}, person = {self.person}, number = {self.number}, gender = {self.gender})"
+	
+    @staticmethod
+    def fromFormAndAnalysis(form, analysis):
+        text = form
+        parts = analysis.split("+")
+        base_form = parts[0]
+        tense = parts[4]
+        person = parts[5]
+        number = parts[6]
+        gender = parts[7]
+        print(form)
+        print(analysis)
+        return Verb(text, base_form, tense, person, number, gender)
+	
 def split_into_sentences(text):
     text = " " + text + "  "
     text = text.replace("\n"," ")
@@ -53,7 +78,6 @@ class Sentence:
     def __repr__(self):
         return self.text
 
-
 def main():
     filename = '../data/harry_potter_1_slovene.txt'
     with open(filename) as f:
@@ -74,6 +98,7 @@ def main():
     random.shuffle(sentences)
     print(len(sentences))
     for sentence in sentences[:1]:
+        verbs = []
         print(sentence)
         proc = Popen(('flookup', 'slovene.bin'), stdin=PIPE, stdout=PIPE)
         for word in sentence.words:
@@ -89,9 +114,12 @@ def main():
                 exit(-1)
             parses[form].add(analysis)
         for form, analyses in parses.items():
+            verbs.append(Verb.fromFormAndAnalysis(form, analyses))
             print(form)
             for analysis in analyses:
                 print('   ' + analysis)
+        for verb in verbs:
+            print(verb)
 
 if __name__ == '__main__':
     main()
